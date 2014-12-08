@@ -263,9 +263,17 @@ bool RTIMUSettings::loadSettings()
     RTFLOAT ftemp;
     //  check to see if settings file exists
 
-    if (!(m_fd = fopen(m_filename, "r"))) {
-        HAL_INFO("Settings file not found. Using defaults and creating settings file\n");
-        return saveSettings();
+    if (!(m_fd = fopen(m_filename, "r"))) { // Check for settings file in cwd
+        // Check for settings file in /etc
+        char tmp[256];
+
+        strcpy(tmp, "/etc/");
+        strncat(tmp, m_filename, 250);
+        strncpy(m_filename, tmp, 255);
+        if (!(m_fd = fopen(m_filename, "r"))) {
+            HAL_INFO("Settings file not found. Using defaults and creating settings file\n");
+            return saveSettings();
+        }
     }
 
     while (fgets(buf, 200, m_fd)) {
